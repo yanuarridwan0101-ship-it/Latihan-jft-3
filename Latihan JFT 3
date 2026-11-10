@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Latihan JFT Hyougen - 40 Soal</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Segoe UI', 'Hiragino Sans', 'Yu Gothic', sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+  }
+  .container {
+    background: #fff;
+    border-radius: 20px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    max-width: 760px;
+    width: 100%;
+    padding: 30px;
+    position: relative;
+  }
+  h1 { font-size: 1.4em; color: #333; margin-bottom: 6px; text-align: center; }
+  .subtitle { text-align: center; color: #888; font-size: 0.85em; margin-bottom: 20px; }
+
+  /* ===== MENU ===== */
+  .menu { text-align: center; }
+  .menu .btn { margin-top: 12px; }
+  .menu-desc { color: #666; font-size: 0.95em; margin-bottom: 8px; line-height: 1.6; }
+  .badge-row { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin: 16px 0; }
+  .badge {
+    background: #f0f2ff; color: #667eea; padding: 6px 14px; border-radius: 20px;
+    font-size: 0.85em; font-weight: 600;
+  }
+
+  /* ===== QUIZ ===== */
+  .progress-bar {
+    height: 8px; background: #eee; border-radius: 10px; overflow: hidden; margin-bottom: 20px;
+  }
+  .progress-fill {
+    height: 100%; background: linear-gradient(90deg, #667eea, #764ba2);
+    width: 0%; transition: width 0.3s ease;
+  }
+  .info-row {
+    display: flex; justify-content: space-between; font-size: 0.85em;
+    color: #666; margin-bottom: 12px; font-weight: 600;
+  }
+  .timer-box {
+    background: #fff3cd; color: #856404; padding: 4px 12px; border-radius: 20px;
+    font-weight: 700; font-size: 0.85em; transition: all 0.2s;
+  }
+  .timer-box.warning { background: #f8d7da; color: #721c24; animation: pulse 1s infinite; }
+  @keyframes pulse { 0%,100%{transform:scale(1);} 50%{transform:scale(1.08);} }
+
+  .question {
+    font-size: 1.15em; color: #222; margin-bottom: 20px; line-height: 1.6;
+    min-height: 60px;
+  }
+  .options { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
+  .option {
+    padding: 14px 18px; border: 2px solid #e0e0e0; border-radius: 12px;
+    cursor: pointer; transition: all 0.2s; font-size: 1em; color: #333;
+    background: #fafafa; text-align: left; display: flex; align-items: center; gap: 10px;
+  }
+  .option:hover:not(.disabled) { border-color: #667eea; background: #f0f2ff; transform: translateX(4px); }
+  .option .label { font-weight: 700; color: #667eea; min-width: 22px; }
+  .option.correct { background: #d4edda; border-color: #28a745; color: #155724; }
+  .option.correct .label { color: #28a745; }
+  .option.wrong { background: #f8d7da; border-color: #dc3545; color: #721c24; }
+  .option.wrong .label { color: #dc3545; }
+  .option.disabled { cursor: not-allowed; }
+  .option.selected { border-color: #667eea; background: #e8ecff; }
+
+  .feedback {
+    padding: 12px; border-radius: 10px; font-weight: 600; text-align: center;
+    margin-bottom: 15px; display: none;
+  }
+  .feedback.show { display: block; }
+  .feedback.correct { background: #d4edda; color: #155724; }
+  .feedback.wrong { background: #f8d7da; color: #721c24; }
+
+  .btn {
+    width: 100%; padding: 14px; border: none; border-radius: 12px;
+    font-size: 1em; font-weight: 700; cursor: pointer; transition: all 0.2s;
+    background: linear-gradient(90deg, #667eea, #764ba2); color: #fff;
+  }
+  .btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(102,126,234,0.4); }
+  .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+  .btn.secondary { background: #eee; color: #333; }
+  .btn.secondary:hover { box-shadow: 0 6px 20px rgba(0,0,0,0.1); }
+  .btn-row { display: flex; gap: 10px; }
+
+  /* ===== RESULT ===== */
+  .result-screen { text-align: center; display: none; }
+  .result-screen.show { display: block; }
+  .score-big {
+    font-size: 3.5em; font-weight: 800;
+    background: linear-gradient(90deg, #667eea, #764ba2);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    margin: 10px 0;
+  }
+  .result-detail { color: #666; margin-bottom: 20px; font-size: 1.05em; line-height: 1.6; }
+  .review-list { text-align: left; margin-top: 20px; max-height: 320px; overflow-y: auto; }
+  .review-item { padding: 10px; border-bottom: 1px solid #eee; font-size: 0.9em; }
+  .review-item.correct { border-left: 4px solid #28a745; }
+  .review-item.wrong { border-left: 4px solid #dc3545; }
+  .review-q { font-weight: 600; margin-bottom: 4px; color: #333; }
+  .review-a { color: #666; font-size: 0.9em; }
+  .review-a .ok { color: #28a745; font-weight: 700; }
+  .review-a .no { color: #dc3545; font-weight: 700; }
+
+  /* ===== LEADERBOARD ===== */
+  .lb-table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 0.92em; }
+  .lb-table th, .lb-table td { padding: 8px 10px; text-align: left; border-bottom: 1px solid #eee; }
+  .lb-table th { background: #f0f2ff; color: #667eea; font-weight: 700; }
+  .lb-table tr:nth-child(1) td { font-weight: 700; color: #b8860b; }
+  .lb-empty { color: #999; text-align: center; padding: 30px; font-style: italic; }
+
+  .hidden { display: none !important; }
+
+  @media (max-width: 500px) {
+    .container { padding: 20px; }
+    h1 { font-size: 1.2em; }
+    .question { font-size: 1.02em; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <!-- ===== MENU SCREEN ===== -->
+  <div id="menu-screen" class="menu">
+    <h1>🇯🇵 Latihan JFT Hyougen</h1>
+    <p class="subtitle">40 Soal Pilihan Ganda • Referensi IRODORI</p>
+    <div class="badge-row">
+      <span class="badge">⏱️ Timer Adaptif</span>
+      <span class="badge">🔀 Soal Acak</span>
+      <span class="badge">🏆 Leaderboard</span>
+      <span class="badge">🔊 Suara</span>
+    </div>
+    <p class="menu-desc">Pilih mode di bawah ini:</p>
+    <button class="btn" id="start-normal-btn">🎯 Mode Latihan (Feedback Langsung)</button>
+    <button class="btn secondary" id="start-exam-btn">📊 Mode Ujian (Hasil di Akhir)</button>
+    <button class="btn secondary" id="show-lb-btn">🏆 Lihat Leaderboard</button>
+  </div>
+
+  <!-- ===== QUIZ SCREEN ===== -->
+  <div id="quiz-screen" class="hidden">
+    <div class="info-row">
+      <span id="progress-text">Soal 1 / 40</span>
+      <span id="timer-display" class="timer-box">⏱️ --s</span>
+      <span id="score-text">Skor: 0</span>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+    <div class="question" id="question-text"></div>
+    <div class="options" id="options-container"></div>
+    <div class="feedback" id="feedback"></div>
+    <button class="btn" id="next-btn" disabled>Lanjut →</button>
+  </div>
+
+  <!-- ===== RESULT SCREEN ===== -->
+  <div id="result-screen" class="result-screen">
+    <h1>🎉 Selesai!</h1>
+    <div class="score-big" id="final-score">0</div>
+    <p class="result-detail" id="final-detail"></p>
+    <div class="review-list" id="review-list"></div>
+    <div class="btn-row" style="margin-top:20px;">
+      <button class="btn" id="restart-btn">🔄 Ulangi Quiz</button>
+      <button class="btn secondary" id="back-menu-btn">🏠 Menu</button>
+    </div>
+  </div>
+
+  <!-- ===== LEADERBOARD SCREEN ===== -->
+  <div id="lb-screen" class="hidden">
+    <h1>🏆 Leaderboard</h1>
+    <p class="subtitle">Top 10 skor terbaik (tersimpan di browser ini)</p>
+    <div id="lb-content"></div>
+    <div class="btn-row" style="margin-top:20px;">
+      <button class="btn secondary" id="clear-lb-btn">🗑️ Hapus Semua</button>
+      <button class="btn" id="lb-back-btn">🏠 Menu</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ============================================================
+// ====== KONFIGURASI — EDIT DI SINI ======
+// ============================================================
+const CONFIG = {
+  // --- PENGATURAN TIMER OTOMATIS ---
+  useAdaptiveTimer: true,   // true = waktu menyesuaikan panjang soal
+  baseTime: 30,             // Waktu minimal dasar (30 detik)
+  timePerChar: 1,           // Tambahan waktu per 1 huruf/karakter (1 detik)
+  // ---------------------------------
+  
+  timePerQuestion: 30,      // Diabaikan jika useAdaptiveTimer = true
+  shuffleQuestions: true,   // acak urutan soal
+  shuffleOptions: false,    // acak urutan opsi A-D
+  soundEnabled: true,       // sound effect benar/salah
+  leaderboardKey: 'jft_hyougen_leaderboard_v1',
+  maxLeaderboard: 10,       
+  examModeDefault: false,   
+  
+  // === KIRIM HASIL KE GOOGLE SHEETS ===
+  // Ganti teks di bawah ini dengan URL Web App dari Google Apps Script Anda (berakhiran /exec)
+  // Biarkan kosong ("") jika belum ingin menggunakan fitur ini.
+  googleSheetUrl: "URL_WEB_APP_ANDA_DI_SINI" 
+};
+
+// ============================================================
+// ====== DAFTAR SOAL — EDIT DI SINI ======
+// Format: { q: "pertanyaan", o: ["A","B","C","D"], a: index_jawaban_benar (0-3) }
+// ============================================================
+const QUESTIONS = [
+  { q: "A: ここで 写真を 撮っても いいですか。 B: ええ、______。", o: ["撮ってください","いいですよ","だめです","撮りました"], a: 1 },
+  { q: "教室で 大きい声で 話しては ______。", o: ["いいです","ください","いけません","おねがいします"], a: 2 },
+  { q: "A: この ケーキ、食べませんか。 B: ありがとうございます。じゃあ、______。", o: ["いただきます","ごちそうさまでした","おかまいなく","いってきます"], a: 0 },
+  { q: "日本では、家に 入る とき、「______」と 言います。", o: ["さようなら","いただきます","おじゃまします","ごめんください"], a: 2 },
+  { q: "私は 一度も 富士山に ______ ことが ありません。", o: ["登る","登った","登って","登り"], a: 1 },
+  { q: "A: 一緒に 帰りませんか。 B: すみません。まだ 仕事が ______。", o: ["あります","います","します","なります"], a: 0 },
+  { q: "先生：明日は 8時までに 学校に ______ ください。", o: ["来る","来て","来た","来ない"], a: 1 },
+  { q: "A: この 傘、貸しても いいですか。 B: ええ、______。", o: ["どうぞ","いやです","ください","すみません"], a: 0 },
+  { q: "まだ その 映画を ______ ことが ありません。", o: ["見る","見た","見て","見ます"], a: 1 },
+  { q: "A: 熱が あるんです。 B: それは いけませんね。早く 病院へ ______ ください。", o: ["行く","行って","行った","行き"], a: 1 },
+  { q: "ここに 車を 止め ______ か。", o: ["てもいいです","てはいけません","なくてはいけません","てもいいですか"], a: 3 },
+  { q: "私は 子供の ころ、よく この 公園で ______。", o: ["遊びます","遊びました","遊んでいます","遊びたいです"], a: 1 },
+  { q: "A: コーヒーと 紅茶と どちらが いいですか。 B: そうですね。じゃあ、コーヒーに ______。", o: ["します","なります","あります","います"], a: 0 },
+  { q: "A: 日本料理は 初めてですか。 B: いいえ、何度も ______ ことが あります。", o: ["食べる","食べた","食べて","食べます"], a: 1 },
+  { q: "A: すみません、ちょっと 静かに ______ ください。", o: ["する","して","した","します"], a: 1 },
+  { q: "明日は テストですから、今夜は 早く ______ ください。", o: ["寝る","寝て","寝た","寝ます"], a: 1 },
+  { q: "A: お先に 失礼します。 B: お疲れ様でした。______。", o: ["いってらっしゃい","おかえりなさい","はじめまして","おげんきで"], a: 3 },
+  { q: "私は 車が ______ です。", o: ["ほしい","たい","たかった","ほしかった"], a: 0 },
+  { q: "A: 窓を 開けても いいですか。 B: すみません、寒いですから ______ ください。", o: ["開けて","開けないで","開けても","開けなくて"], a: 1 },
+  { q: "のどが かわきましたね。何か 冷たい ものが ______ です。", o: ["飲みたい","飲みます","飲んでいます","飲みました"], a: 0 },
+  { q: "先生に この 漢字の 読み方を ______ たいです。", o: ["聞き","聞く","聞いて","聞きます"], a: 0 },
+  { q: "A: お誕生日 おめでとう ございます。 B: どうも ______。", o: ["ありがとう ございます","おめでとう ございます","いただきます","ごちそうさまです"], a: 0 },
+  { q: "ここは 病院ですから、タバコを 吸っては ______。", o: ["いいです","ください","いけません","なりません"], a: 2 },
+  { q: "A: 一緒に お昼ご飯を 食べに 行きませんか。 B: ええ、______。", o: ["行きましょう","行きました","行っています","行きたいです"], a: 0 },
+  { q: "私は 一度 京都へ ______ ことが あります。", o: ["行く","行った","行って","行き"], a: 1 },
+  { q: "A: この 資料を コピーして もらえませんか。 B: はい、______。", o: ["いいですよ","いやです","だめです","こまります"], a: 0 },
+  { q: "明日 雨が 降るかもしれませんから、傘を ______ ください。", o: ["持つ","持って","持った","持ち"], a: 1 },
+  { q: "A: お先に どうぞ。 B: ありがとう ございます。では、______。", o: ["おじゃまします","おさきに しつれいします","いってきます","ごめんください"], a: 1 },
+  { q: "私は 夏休みに 国へ ______ つもりです。", o: ["帰る","帰った","帰って","帰り"], a: 0 },
+  { q: "暑いですね。何か 冷たい ものでも ______ か。", o: ["飲みます","飲みません","飲みました","飲んでいます"], a: 1 },
+  { q: "A: この 本、面白いですか。 B: ええ、とても ______。", o: ["面白いです","面白かったです","面白くないです","面白いでした"], a: 0 },
+  { q: "すみません、この 近くに 駅が ______ か。", o: ["あります","います","ありますか","いますか"], a: 2 },
+  { q: "日本では、ご飯を 食べる 前に 「______」と 言います。", o: ["ごちそうさまでした","いただきます","おかまいなく","しつれいします"], a: 1 },
+  { q: "A: 風邪を ひいて しまいました。 B: それは たいへんですね。どうぞ お ______ ください。", o: ["だいじに","げんきに","あんしん","ゆっくり"], a: 0 },
+  { q: "私は 毎朝 コーヒーを ______。", o: ["飲みます","飲みました","飲んでいます","飲みたいです"], a: 0 },
+  { q: "A: 荷物を 持ちましょうか。 B: ありがとう ございます。じゃあ、お ______ します。", o: ["ねがい","まかせ","せわ","じゃま"], a: 0 },
+  { q: "ここで 待って いて ください。すぐに ______ から。", o: ["戻ります","戻りました","戻っています","戻りたいです"], a: 0 },
+  { q: "A: 日本語の 勉強は どうですか。 B: とても ______ です。でも、漢字が 難しいです。", o: ["たのしい","たのしく","たのしかった","たのし"], a: 0 },
+  { q: "もう 遅いですから、______ 帰りましょう。", o: ["そろそろ","だんだん","ますます","なかなか"], a: 0 },
+  { q: "A: はじめまして。どうぞ よろしく お願いします。 B: ______。こちらこそ よろしく お願いします。", o: ["はじめまして","さようなら","おかげさまで","おつかれさまです"], a: 0 }
+];
+
+// ============================================================
+// ====== LOGIKA QUIZ ======
+// ============================================================
+const LABELS = ['A','B','C','D'];
+let current = 0, score = 0, answered = false;
+let order = [], userAnswers = [], examMode = false;
+let timerInterval = null, timeLeft = 0;
+
+// ---------- SOUND (Web Audio API) ----------
+let audioCtx = null;
+function initAudio() {
+  if (!audioCtx) {
+    try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }
+    catch(e) { audioCtx = null; }
+  }
+}
+function playTone(freq, duration, type='sine', vol=0.15) {
+  if (!CONFIG.soundEnabled || !audioCtx) return;
+  const osc = audioCtx.createOscillator();
+  const gain = audioCtx.createGain();
+  osc.type = type;
+  osc.frequency.value = freq;
+  gain.gain.setValueAtTime(vol, audioCtx.currentTime);
+  gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+  osc.connect(gain); gain.connect(audioCtx.destination);
+  osc.start(); osc.stop(audioCtx.currentTime + duration);
+}
+function soundCorrect() {
+  initAudio();
+  playTone(660, 0.12, 'sine');
+  setTimeout(() => playTone(880, 0.18, 'sine'), 110);
+}
+function soundWrong() {
+  initAudio();
+  playTone(220, 0.25, 'sawtooth', 0.12);
+}
+function soundTick() {
+  if (!CONFIG.soundEnabled || !audioCtx) return;
+  playTone(1000, 0.05, 'square', 0.05);
+}
+
+// ---------- SHUFFLE ----------
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+// ---------- SCREEN SWITCH ----------
+function showScreen(id) {
+  ['menu-screen','quiz-screen','result-screen','lb-screen'].forEach(s => {
+    document.getElementById(s).classList.add('hidden');
+    document.getElementById(s).classList.remove('show');
+  });
+  document.getElementById(id).classList.remove('hidden');
+  if (id === 'result-screen') document.getElementById(id).classList.add('show');
+}
+
+// ---------- START QUIZ ----------
+function startQuiz(isExam) {
+  initAudio(); 
+  examMode = isExam;
+  current = 0; score = 0; answered = false;
+  userAnswers = [];
+  order = CONFIG.shuffleQuestions
+    ? shuffle(QUESTIONS.map((_, i) => i))
+    : QUESTIONS.map((_, i) => i);
+  showScreen('quiz-screen');
+  renderQuestion();
+}
+
+// ---------- RENDER QUESTION ----------
+function renderQuestion() {
+  answered = false;
+  const qIdx = order[current];
+  let q = QUESTIONS[qIdx];
+  let options = q.o.slice();
+  let correct = q.a;
+
+  // Acak opsi kalau diaktifkan
+  if (CONFIG.shuffleOptions) {
+    const pairs = options.map((opt, i) => ({ opt, isCorrect: i === correct }));
+    const shuffled = shuffle(pairs);
+    options = shuffled.map(p => p.opt);
+    correct = shuffled.findIndex(p => p.isCorrect);
+  }
+
+  q = { ...q, o: options, a: correct };
+
+  document.getElementById('question-text').textContent = q.q;
+  document.getElementById('progress-text').textContent = `Soal ${current + 1} / ${order.length}`;
+  document.getElementById('score-text').textContent = `Skor: ${score}`;
+  document.getElementById('progress-fill').style.width = `${(current / order.length) * 100}%`;
+
+  const container = document.getElementById('options-container');
+  container.innerHTML = '';
+  q.o.forEach((opt, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'option';
+    btn.innerHTML = `<span class="label">${LABELS[i]}.</span> <span>${opt}</span>`;
+    btn.onclick = () => selectAnswer(i, q);
+    container.appendChild(btn);
+  });
+
+  const fb = document.getElementById('feedback');
+  fb.className = 'feedback';
+  fb.textContent = '';
+  document.getElementById('next-btn').disabled = true;
+  document.getElementById('next-btn').textContent = current === order.length - 1 ? 'Lihat Hasil →' : 'Lanjut →';
+
+  // HITUNG WAKTU OTOMATIS (ADAPTIF)
+  let waktuSoalIni = CONFIG.timePerQuestion;
+  if (CONFIG.useAdaptiveTimer) {
+    // Base 30 detik + 1 detik per huruf
+    waktuSoalIni = Math.round(CONFIG.baseTime + (q.q.length * CONFIG.timePerChar));
+  }
+  startTimer(waktuSoalIni);
+}
+
+// ---------- TIMER ----------
+function startTimer(detik) {
+  clearInterval(timerInterval);
+  const timerEl = document.getElementById('timer-display');
+  
+  if (detik <= 0) {
+    timerEl.style.display = 'none';
+    return;
+  }
+  timerEl.style.display = 'inline-block';
+  timeLeft = detik;
+  updateTimerDisplay();
+  timerInterval = setInterval(() => {
+    timeLeft--;
+    updateTimerDisplay();
+    if (timeLeft <= 5 && timeLeft > 0) soundTick();
+    if (timeLeft <= 0) {
+      clearInterval(timerInterval);
+      timeOut();
+    }
+  }, 1000);
+}
+function updateTimerDisplay() {
+  const el = document.getElementById('timer-display');
+  el.textContent = `⏱️ ${timeLeft}s`;
+  el.classList.toggle('warning', timeLeft <= 5);
+}
+function timeOut() {
+  if (answered) return;
+  answered = true;
+  const qIdx = order[current];
+  const q = QUESTIONS[qIdx];
+  userAnswers.push({ qIdx, selected: -1, correct: q.a, isCorrect: false, timedOut: true });
+  document.querySelectorAll('.option').forEach((el, i) => {
+    el.classList.add('disabled');
+    if (i === q.a) el.classList.add('correct');
+  });
+  if (!examMode) {
+    soundWrong();
+    const fb = document.getElementById('feedback');
+    fb.className = 'feedback show wrong';
+    fb.textContent = `⏰ Waktu habis! Jawaban benar: ${LABELS[q.a]}. ${q.o[q.a]}`;
+  }
+  document.getElementById('next-btn').disabled = false;
+  document.getElementById('score-text').textContent = `Skor: ${score}`;
+}
+
+// ---------- SELECT ANSWER ----------
+function selectAnswer(selected, q) {
+  if (answered) return;
+  answered = true;
+  clearInterval(timerInterval);
+
+  const qIdx = order[current];
+  const correct = q.a;
+  const options = document.querySelectorAll('.option');
+
+  if (examMode) {
+    options.forEach((el, i) => {
+      el.classList.add('disabled');
+      if (i === selected) el.classList.add('selected');
+    });
+    if (selected === correct) score++;
+    userAnswers.push({ qIdx, selected, correct, isCorrect: selected === correct });
+  } else {
+    options.forEach((el, i) => {
+      el.classList.add('disabled');
+      if (i === correct) el.classList.add('correct');
+      if (i === selected && i !== correct) el.classList.add('wrong');
+    });
+    const isCorrect = selected === correct;
+    if (isCorrect) { score++; soundCorrect(); }
+    else soundWrong();
+    userAnswers.push({ qIdx, selected, correct, isCorrect });
+    const fb = document.getElementById('feedback');
+    fb.className = 'feedback show ' + (isCorrect ? 'correct' : 'wrong');
+    fb.textContent = isCorrect
+      ? '✅ Benar!'
+      : `❌ Salah. Jawaban benar: ${LABELS[correct]}. ${q.o[correct]}`;
+  }
+
+  document.getElementById('score-text').textContent = `Skor: ${score}`;
+  document.getElementById('next-btn').disabled = false;
+}
+
+// ---------- NEXT ----------
+document.getElementById('next-btn').onclick = () => {
+  current++;
+  if (current >= order.length) showResult();
+  else renderQuestion();
+};
+
+// ---------- RESULT ----------
+function showResult() {
+  clearInterval(timerInterval);
+  showScreen('result-screen');
+  const pct = Math.round((score / order.length) * 100);
+  document.getElementById('final-score').textContent = `${score} / ${order.length}`;
+  let msg = '';
+  if (pct >= 90) msg = '🌟 Luar biasa! Hyougen kamu sangat bagus!';
+  else if (pct >= 70) msg = '👍 Bagus! Sedikit lagi sempurna.';
+  else if (pct >= 50) msg = '💪 Cukup baik. Terus berlatih!';
+  else msg = '📚 Jangan menyerah. Ulangi dan pelajari lagi!';
+  document.getElementById('final-detail').innerHTML =
+    `${pct}% benar<br>${msg}<br><small style="color:#999;">Mode: ${examMode ? 'Ujian' : 'Latihan'}</small>`;
+
+  const list = document.getElementById('review-list');
+  list.innerHTML = '<h3 style="margin-bottom:10px;color:#333;">Review Jawaban:</h3>';
+  userAnswers.forEach((ua, i) => {
+    const q = QUESTIONS[ua.qIdx];
+    const div = document.createElement('div');
+    div.className = 'review-item ' + (ua.isCorrect ? 'correct' : 'wrong');
+    const yourAns = ua.selected === -1
+      ? '<span class="no">(tidak dijawab / waktu habis)</span>'
+      : `<span class="${ua.isCorrect ? 'ok' : 'no'}">${LABELS[ua.selected]}. ${q.o[ua.selected]}</span>`;
+    div.innerHTML = `
+      <div class="review-q">${i + 1}. ${q.q}</div>
+      <div class="review-a">
+        Jawabanmu: ${yourAns}
+        ${!ua.isCorrect ? ` | Benar: <span class="ok">${LABELS[ua.correct]}. ${q.o[ua.correct]}</span>` : ''}
+      </div>`;
+    list.appendChild(div);
+  });
+
+  saveToLeaderboard(score, order.length);
+
+  // === KIRIM KE GOOGLE SHEETS ===
+  if (CONFIG.googleSheetUrl && CONFIG.googleSheetUrl.trim() !== "" && CONFIG.googleSheetUrl !== "URL_WEB_APP_ANDA_DI_SINI") {
+    let namaSiswa = prompt("Ketik nama lengkap kamu untuk mengirim nilai ke Guru:");
+    if (namaSiswa && namaSiswa.trim() !== "") {
+      const dataKirim = {
+        nama: namaSiswa,
+        skor: score,
+        total: order.length,
+        persentase: pct
+      };
+      
+      const detailEl = document.getElementById('final-detail');
+      detailEl.innerHTML += `<br><span id="status-kirim" style="color:blue; font-size:0.8em;">Mengirim nilai...</span>`;
+
+      fetch(CONFIG.googleSheetUrl, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(dataKirim)
+      }).then(() => {
+        const statusEl = document.getElementById('status-kirim');
+        if (statusEl) {
+          statusEl.style.color = 'green';
+          statusEl.style.fontWeight = 'bold';
+          statusEl.textContent = '✅ Nilai berhasil terkirim ke Guru!';
+        }
+      }).catch(err => {
+        const statusEl = document.getElementById('status-kirim');
+        if (statusEl) {
+          statusEl.style.color = 'red';
+          statusEl.textContent = '❌ Gagal mengirim nilai (Cek koneksi).';
+        }
+      });
+    }
+  }
+}
+
+// ---------- LEADERBOARD ----------
+function getLeaderboard() {
+  try {
+    return JSON.parse(localStorage.getItem(CONFIG.leaderboardKey)) || [];
+  } catch(e) { return []; }
+}
+function saveToLeaderboard(sc, total) {
+  const entry = {
+    score: sc,
+    total: total,
+    pct: Math.round((sc / total) * 100),
+    mode: examMode ? 'Ujian' : 'Latihan',
+    date: new Date().toLocaleString('id-ID', { dateStyle: 'short', timeStyle: 'short' })
+  };
+  const lb = getLeaderboard();
+  lb.push(entry);
+  lb.sort((a, b) => b.pct - a.pct || b.score - a.score);
+  const trimmed = lb.slice(0, CONFIG.maxLeaderboard);
+  localStorage.setItem(CONFIG.leaderboardKey, JSON.stringify(trimmed));
+}
+function renderLeaderboard() {
+  const lb = getLeaderboard();
+  const content = document.getElementById('lb-content');
+  if (lb.length === 0) {
+    content.innerHTML = '<p class="lb-empty">Belum ada skor tersimpan.<br>Selesaikan quiz dulu untuk masuk leaderboard!</p>';
+    return;
+  }
+  let html = '<table class="lb-table"><thead><tr><th>#</th><th>Skor</th><th>%</th><th>Mode</th><th>Tanggal</th></tr></thead><tbody>';
+  lb.forEach((e, i) => {
+    const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : (i + 1);
+    html += `<tr><td>${medal}</td><td>${e.score}/${e.total}</td><td>${e.pct}%</td><td>${e.mode}</td><td>${e.date}</td></tr>`;
+  });
+  html += '</tbody></table>';
+  content.innerHTML = html;
+}
+
+// ---------- EVENT LISTENERS ----------
+document.getElementById('start-normal-btn').onclick = () => startQuiz(false);
+document.getElementById('start-exam-btn').onclick = () => startQuiz(true);
+document.getElementById('restart-btn').onclick = () => startQuiz(examMode);
+document.getElementById('back-menu-btn').onclick = () => showScreen('menu-screen');
+document.getElementById('show-lb-btn').onclick = () => {
+  renderLeaderboard();
+  showScreen('lb-screen');
+};
+document.getElementById('lb-back-btn').onclick = () => showScreen('menu-screen');
+document.getElementById('clear-lb-btn').onclick = () => {
+  if (confirm('Hapus semua skor di leaderboard?')) {
+    localStorage.removeItem(CONFIG.leaderboardKey);
+    renderLeaderboard();
+  }
+};
+
+// Mulai di menu
+showScreen('menu-screen');
+</script>
+</body>
+</html>
